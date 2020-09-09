@@ -37,3 +37,4 @@ Makefile.dep
 .cproject
 .project
 redis.layout
+.redis
