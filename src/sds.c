@@ -89,21 +89,21 @@ static inline char sdsReqType(size_t string_size) {
 sds sdsnewlen(const void *init, size_t initlen) {
     void *sh;
     sds s;
-    char type = sdsReqType(initlen);
+    char type = sdsReqType(initlen); // 根据字符串长度选择不同烦人类型。
     /* Empty strings are usually created in order to append. Use type 8
      * since type 5 is not good at this. */
     if (type == SDS_TYPE_5 && initlen == 0) type = SDS_TYPE_8;
-    int hdrlen = sdsHdrSize(type);
-    unsigned char *fp; /* flags pointer. */
+    int hdrlen = sdsHdrSize(type);// 计算不同头部所需的不同长度
+    unsigned char *fp; /* 指向flags的指针 */
 
-    sh = s_malloc(hdrlen+initlen+1);
+    sh = s_malloc(hdrlen+initlen+1); // "+1" 是为了结束符'\0'
     if (sh == NULL) return NULL;
     if (init==SDS_NOINIT)
         init = NULL;
     else if (!init)
         memset(sh, 0, hdrlen+initlen+1);
-    s = (char*)sh+hdrlen;
-    fp = ((unsigned char*)s)-1;
+    s = (char*)sh+hdrlen; // s是指向buf的指针
+    fp = ((unsigned char*)s)-1; // s 是柔性数组buf的指针，-1指向flags
     switch(type) {
         case SDS_TYPE_5: {
             *fp = type | (initlen << SDS_TYPE_BITS);
@@ -140,7 +140,7 @@ sds sdsnewlen(const void *init, size_t initlen) {
     }
     if (initlen && init)
         memcpy(s, init, initlen);
-    s[initlen] = '\0';
+    s[initlen] = '\0';// 添加末尾的结束
     return s;
 }
 
@@ -164,7 +164,7 @@ sds sdsdup(const sds s) {
 /* Free an sds string. No operation is performed if 's' is NULL. */
 void sdsfree(sds s) {
     if (s == NULL) return;
-    s_free((char*)s-sdsHdrSize(s[-1]));
+    s_free((char*)s-sdsHdrSize(s[-1]));// 此处直接释放内存
 }
 
 /* Set the sds string length to the length as obtained with strlen(), so
@@ -191,8 +191,8 @@ void sdsupdatelen(sds s) {
  * so that next append operations will not require allocations up to the
  * number of bytes previously available. */
 void sdsclear(sds s) {
-    sdssetlen(s, 0);
-    s[0] = '\0';
+    sdssetlen(s, 0);// 统计值len归零
+    s[0] = '\0'; // 清空buf
 }
 
 /* Enlarge the free space at the end of the sds string so that the caller
@@ -393,15 +393,18 @@ sds sdsgrowzero(sds s, size_t len) {
  * end of the specified sds string 's'.
  *
  * After the call, the passed sds string is no longer valid and all the
- * references must be substituted with the new pointer returned by the call. */
+ * references must be substituted with the new pointer returned by the call.
+ *
+ * 将指针t的内容和指针s的内容拼接在一起，该操作是二进制安全的
+ * */
 sds sdscatlen(sds s, const void *t, size_t len) {
     size_t curlen = sdslen(s);
 
     s = sdsMakeRoomFor(s,len);
     if (s == NULL) return NULL;
-    memcpy(s+curlen, t, len);
+    memcpy(s+curlen, t, len);// 直接拼接保证了二进制安全
     sdssetlen(s, curlen+len);
-    s[curlen+len] = '\0';
+    s[curlen+len] = '\0';// 加上结束符
     return s;
 }
 
