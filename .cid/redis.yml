@@ -1,5 +1,20 @@
+workspace:
+  base: /data/redis
+  path: .
 pipeline:
-  build:
-    image: drone/drone
+  init:
+    image: 'node:latest'
     commands:
-      - make
+      - 'echo "begin"'
+    when:
+      event: [push, tag, deployment]
+      branch: [master, develop]
+  build:
+    image: 'node:latest'
+    environment:
+      - TZ=Asia/Shanghai
+    commands:
+      - 'cd /data/redis/redis/ && make'
+    when:
+      event: [push, tag, deployment]
+      branch: [master, develop]
