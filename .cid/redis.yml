@@ -1,13 +1,53 @@
+---
+kind: pipeline
+name: drone
+
 workspace:
-  base: /data/redis
-  path: .
-pipeline:
-  build:
-    image: 'centos:latest'
-    environment:
-      - TZ=Asia/Shanghai
+  base: /app
+  path: git/drone
+
+steps:
+  - name: build
+    image: node:alpine
+    volumes:
+      - name: webroot
+        path: /wwwroot
     commands:
-      - 'make'
+      - /bin/sh bash.sh
+    environment:
+      host:
+        from_secret: host
+      port:
+        from_secret: port
+      abc: abctest
+  - name: deploy
+    image: appleboy/drone-scp
     when:
-      event: [push, tag, deployment]
-      branch: [master, develop]
+      status:
+        - success
+    settings:
+      host:
+        from_secret: host
+      port:
+        from_secret: port
+      key:
+        from_secret: rsa
+      username:
+        from_secret: username
+      target:
+        from_secret: deploy_path
+      source: ./*
+
+volumes:
+  - name: webroot
+    host:
+      path: /opt
+  - name: cache
+    host:
+      path: /tmp/cache
+
+trigger:
+  branch:
+    - master
+  event:
+    - push
