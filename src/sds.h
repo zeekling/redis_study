@@ -42,8 +42,8 @@ extern const char *SDS_NOINIT;
 
 typedef char *sds;
 
-/* Note: sdshdr5 is never used, we just access the flags byte directly.
- * However is here to document the layout of type 5 SDS strings. */
+/* 注意: 不使用sdshdr5，我们只直接访问标志字节。
+ * 不过，这里是为了记录sdshdr5的布局。 */
 struct __attribute__ ((__packed__)) sdshdr5 {
     unsigned char flags; /* 低三位存储类型，高5为存储长度 */
     char buf[]; /* 柔性数组，存放实际内容  */

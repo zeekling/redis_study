@@ -215,34 +215,33 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
     sh = (char*)s-sdsHdrSize(oldtype);
     newlen = (len+addlen);
     if (newlen < SDS_MAX_PREALLOC)
+		// SDS_MAX_PREALLOC这个宏的值是1MB
         newlen *= 2;
     else
         newlen += SDS_MAX_PREALLOC;
 
     type = sdsReqType(newlen);
 
-    /* Don't use type 5: the user is appending to the string and type 5 is
-     * not able to remember empty space, so sdsMakeRoomFor() must be called
-     * at every appending operation. */
+    /* 不使用sds5：向字符串添加内容，sds5无法记住空白，因此需要转换成sds8 */
     if (type == SDS_TYPE_5) type = SDS_TYPE_8;
 
     hdrlen = sdsHdrSize(type);
     if (oldtype==type) {
+		// 无需更改类型，通过realloc扩大柔性数组即可，注意这里指向buf的指针s被跟新了
         newsh = s_realloc(sh, hdrlen+newlen+1);
         if (newsh == NULL) return NULL;
         s = (char*)newsh+hdrlen;
     } else {
-        /* Since the header size changes, need to move the string forward,
-         * and can't use realloc */
-        newsh = s_malloc(hdrlen+newlen+1);
+        /* 扩容后数据类型和头部长度发生了变化，此时不再进行realloc操作，而是直接重新开 */
+        newsh = s_malloc(hdrlen+newlen+1);// 按照长度进行开辟内存
         if (newsh == NULL) return NULL;
-        memcpy((char*)newsh+hdrlen, s, len+1);
-        s_free(sh);
-        s = (char*)newsh+hdrlen;
-        s[-1] = type;
-        sdssetlen(s, len);
+        memcpy((char*)newsh+hdrlen, s, len+1);// 将原buf内容移动到新位置
+        s_free(sh); // 释放旧指针
+        s = (char*)newsh+hdrlen; // 偏移sds结构的起始地址，得到字符串起始地址
+        s[-1] = type; // 为flags赋值
+        sdssetlen(s, len); // 为len属性赋值
     }
-    sdssetalloc(s, newlen);
+    sdssetalloc(s, newlen);// 为alloc属性赋值
     return s;
 }
 
