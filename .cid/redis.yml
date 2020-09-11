@@ -2,19 +2,12 @@ workspace:
   base: /data/redis
   path: .
 pipeline:
-  init:
-    image: 'node:latest'
-    commands:
-      - 'echo "begin"'
-    when:
-      event: [push, tag, deployment]
-      branch: [master, develop]
   build:
-    image: 'node:latest'
+    image: 'centos:latest'
     environment:
       - TZ=Asia/Shanghai
     commands:
-      - 'cd /data/redis/redis/ && make'
+      - 'make'
     when:
       event: [push, tag, deployment]
       branch: [master, develop]
