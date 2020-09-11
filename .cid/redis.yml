@@ -1,0 +1,5 @@
+pipeline:
+  build:
+    image: motecshine/laravelphp71
+    commands:
+      - make
