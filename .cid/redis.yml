@@ -1,53 +1,6 @@
----
-kind: pipeline
-name: drone
-
-workspace:
-  base: /app
-  path: git/drone
-
-steps:
-  - name: build
-    image: node:alpine
-    volumes:
-      - name: webroot
-        path: /wwwroot
+pipeline:
+  build:
+    image: plugins/docker
+    registry:registry.cn-hangzhou.aliyuncs.com
     commands:
-      - /bin/sh bash.sh
-    environment:
-      host:
-        from_secret: host
-      port:
-        from_secret: port
-      abc: abctest
-  - name: deploy
-    image: appleboy/drone-scp
-    when:
-      status:
-        - success
-    settings:
-      host:
-        from_secret: host
-      port:
-        from_secret: port
-      key:
-        from_secret: rsa
-      username:
-        from_secret: username
-      target:
-        from_secret: deploy_path
-      source: ./*
-
-volumes:
-  - name: webroot
-    host:
-      path: /opt
-  - name: cache
-    host:
-      path: /tmp/cache
-
-trigger:
-  branch:
-    - master
-  event:
-    - push
+      - make
