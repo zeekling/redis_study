@@ -1,5 +1,5 @@
 pipeline:
   build:
-    image: motecshine/laravelphp71
+    image: drone/drone
     commands:
       - make
