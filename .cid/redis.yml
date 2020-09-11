@@ -1,6 +1,5 @@
 pipeline:
   build:
     image: plugins/docker
-    registry:registry.cn-hangzhou.aliyuncs.com
     commands:
       - make
