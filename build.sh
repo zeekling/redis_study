@@ -4,11 +4,14 @@
 # build redis script
 #
 
+cd deps
+
+ls -alh
+
+cd ../
+
 make distclean
 
-cd deps
-make hiredis linenoise lua jemalloc
-cd ../src
 make
 
 
