@@ -4,11 +4,9 @@
 # build redis script
 #
 
-cd deps
 
-ls -alh
+ls -alh ./deps/jemalloc
 
-cd ../
 
 make distclean
 
