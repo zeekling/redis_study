@@ -4,9 +4,9 @@
 # build redis script
 #
 
-cd ./deps && ./update-jemalloc.sh 5.2.1
+#cd ./deps && ./update-jemalloc.sh 5.2.1
 
-cd ./jemalloc &&  ./autogen.sh
+cd ../deps/jemalloc &&  ./autogen.sh
 
 cd ../../
 
