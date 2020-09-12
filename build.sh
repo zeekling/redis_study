@@ -4,15 +4,11 @@
 # build redis script
 #
 
-cd ./deps/jemalloc
+cd ./deps && ./update-jemalloc.sh 5.2.1
 
-whereis pkg-config
-
-./autogen.sh
+cd ./jemalloc &&  ./autogen.sh
 
 cd ../../
-
-ls -lh ./deps/jemalloc
 
 make clean
 
