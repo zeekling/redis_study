@@ -10,11 +10,11 @@ cd ./deps/jemalloc
 
 cd ../../
 
-ll ./deps/jemalloc
+ls -lh ./deps/jemalloc
 
-#make distclean
+make clean
 
-#make
+make
 
 
 
