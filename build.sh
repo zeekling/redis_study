@@ -5,7 +5,7 @@
 #
 
 
-ls -alh ./deps/jemalloc
+ls -lh ./deps/jemalloc
 
 
 #make distclean
