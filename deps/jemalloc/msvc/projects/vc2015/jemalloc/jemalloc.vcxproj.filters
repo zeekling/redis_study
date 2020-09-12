@@ -37,7 +37,7 @@
     <ClCompile Include="..\..\..\..\src\hash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\hook.c">
+    <ClCompile Include="..\..\..\..\src\hooks.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\jemalloc.c">
@@ -70,9 +70,6 @@
     <ClCompile Include="..\..\..\..\src\rtree.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\sc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\stats.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -98,9 +95,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\div.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\safety_check.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

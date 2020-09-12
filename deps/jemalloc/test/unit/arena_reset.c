@@ -77,7 +77,7 @@ vsalloc(tsdn_t *tsdn, const void *ptr) {
 		return 0;
 	}
 
-	if (szind == SC_NSIZES) {
+	if (szind == NSIZES) {
 		return 0;
 	}
 
@@ -142,7 +142,7 @@ do_arena_reset_post(void **ptrs, unsigned nptrs, unsigned arena_ind) {
 
 	if (have_background_thread) {
 		malloc_mutex_lock(tsdn,
-		    &background_thread_info_get(arena_ind)->mtx);
+		    &background_thread_info[arena_ind % ncpus].mtx);
 	}
 	/* Verify allocations no longer exist. */
 	for (i = 0; i < nptrs; i++) {
@@ -151,7 +151,7 @@ do_arena_reset_post(void **ptrs, unsigned nptrs, unsigned arena_ind) {
 	}
 	if (have_background_thread) {
 		malloc_mutex_unlock(tsdn,
-		    &background_thread_info_get(arena_ind)->mtx);
+		    &background_thread_info[arena_ind % ncpus].mtx);
 	}
 
 	free(ptrs);
@@ -279,11 +279,8 @@ extent_dalloc_unmap(extent_hooks_t *extent_hooks, void *addr, size_t size,
 	if (!try_dalloc) {
 		return true;
 	}
-	did_dalloc = true;
-	if (!maps_coalesce && opt_retain) {
-		return true;
-	}
 	pages_unmap(addr, size);
+	did_dalloc = true;
 	return false;
 }
 
@@ -307,9 +304,7 @@ TEST_BEGIN(test_arena_destroy_hooks_unmap) {
 	unsigned nptrs;
 
 	extent_hooks_prep();
-	if (maps_coalesce) {
-		try_decommit = false;
-	}
+	try_decommit = false;
 	memcpy(&hooks_orig, &hooks, sizeof(extent_hooks_t));
 	memcpy(&hooks, &hooks_unmap, sizeof(extent_hooks_t));
 

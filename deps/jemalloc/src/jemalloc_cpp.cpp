@@ -128,14 +128,14 @@ operator delete(void *ptr, std::size_t size) noexcept {
 	if (unlikely(ptr == nullptr)) {
 		return;
 	}
-	je_sdallocx_noflags(ptr, size);
+	je_sdallocx(ptr, size, /*flags=*/0);
 }
 
 void operator delete[](void *ptr, std::size_t size) noexcept {
 	if (unlikely(ptr == nullptr)) {
 		return;
 	}
-	je_sdallocx_noflags(ptr, size);
+	je_sdallocx(ptr, size, /*flags=*/0);
 }
 
 #endif  // __cpp_sized_deallocation
