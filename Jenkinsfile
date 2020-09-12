@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'printenv'
-                sh 'make MALLOC=jemalloc'
+                sh 'build.sh'
             }
         }
     }

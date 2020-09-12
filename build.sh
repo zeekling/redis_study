@@ -5,7 +5,7 @@
 #
 
 #make clean
-make && make PREFIX=/usr/local/redis install
+make clean && make PREFIX=/usr/local/redis install
 
 if ! test -z $1;then
 	return 0;
