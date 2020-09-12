@@ -8,9 +8,9 @@
 ls -alh ./deps/jemalloc
 
 
-make distclean
+#make distclean
 
-make
+#make
 
 
 
