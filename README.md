@@ -1,6 +1,4 @@
 
-[![Build Status](https://monitor.zeekling.cn/api/badges/zeekling/redis/status.svg)](https://monitor.zeekling.cn/zeekling/redis)
-
 
 查看英文版，请查看:[README.md](https://git.zeekling.cn/zeekling/redis/src/branch/master/README_EN.md)
 
