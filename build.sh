@@ -4,9 +4,13 @@
 # build redis script
 #
 
+cd ./deps/jemalloc
 
-ls -lh ./deps/jemalloc
+./autogen.sh
 
+cd ../../
+
+ll ./deps/jemalloc
 
 #make distclean
 
