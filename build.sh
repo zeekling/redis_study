@@ -6,6 +6,8 @@
 
 cd ./deps/jemalloc
 
+whereis pkg-config
+
 ./autogen.sh
 
 cd ../../
