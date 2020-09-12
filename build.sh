@@ -7,6 +7,10 @@
 #make clean
 make && make PREFIX=/usr/local/redis install
 
+if ! test -z $1;then
+	return 0;
+fi
+
 if [ ! -d "/usr/local/redis/config/" ]
 then
 	mkdir -p /usr/local/redis/config/
