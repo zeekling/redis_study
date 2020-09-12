@@ -4,28 +4,12 @@
 # build redis script
 #
 
-#make clean
-make clean && make PREFIX=/usr/local/redis install
+make distclean
 
-if ! test -z $1;then
-	return 0;
-fi
+cd deps
+make hiredis linenoise lua jemalloc
+cd ../src
+make
 
-if [ ! -d "/usr/local/redis/config/" ]
-then
-	mkdir -p /usr/local/redis/config/
-fi
 
-# copy conf file
-if [ ! -d "/usr/local/redis/config/redis.conf" ]
-then
-	echo "copy redis.conf"
-	cp ./redis.conf /usr/local/redis/config/
-fi
-
-if [ ! -d "/usr/local/redis/config/sentinel.conf" ]
-then
-	echo "copy sentinel.conf"
-	cp ./sentinel.conf /usr/local/redis/config/
-fi
 
