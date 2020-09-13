@@ -8,7 +8,9 @@
 
 cd ./deps/jemalloc &&  ./autogen.sh
 
-cd ../../
+cd ../ && make hiredis jemalloc linenoise lua
+
+cd ../
 
 make clean
 
