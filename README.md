@@ -1,6 +1,6 @@
 
 
-查看英文版，请查看:[README.md](https://git.zeekling.cn/zeekling/redis/src/branch/master/README_EN.md)
+查看英文版，请查看:[README_EN.md](https://git.zeekling.cn/zeekling/redis/src/branch/master/README_EN.md)
 
 这个README.md知识提供快速开始的文档。其他详细信息可以查看：[redis.io](https://redis.io/)
 
