@@ -45,14 +45,14 @@
 #define DICT_NOTUSED(V) ((void) V)
 
 typedef struct dictEntry {
-    void *key;
+    void *key; /** 存储键*/
     union {
-        void *val;
-        uint64_t u64;
-        int64_t s64;
+        void *val; /** db.dict中的val */
+        uint64_t u64; 
+        int64_t s64; /** db.expires中存储过期时间 */
         double d;
-    } v;
-    struct dictEntry *next;
+    } v; /** 值，是个联合体 */
+    struct dictEntry *next; /** 当Hash冲突时，指向冲突的元素，形成单链表 */
 } dictEntry;
 
 typedef struct dictType {
@@ -67,18 +67,18 @@ typedef struct dictType {
 /* This is our hash table structure. Every dictionary has two of this as we
  * implement incremental rehashing, for the old to the new table. */
 typedef struct dictht {
-    dictEntry **table;
-    unsigned long size;
-    unsigned long sizemask;
-    unsigned long used;
+    dictEntry **table; /** 指针数组，用于存储键值对 */
+    unsigned long size; /** table数组的大小 */
+    unsigned long sizemask; /** 掩码 = size-1 */
+    unsigned long used; /**table数组已经存储元素个数，包含next单链表  */
 } dictht;
 
 typedef struct dict {
-    dictType *type;
-    void *privdata;
-    dictht ht[2];
-    long rehashidx; /* rehashing not in progress if rehashidx == -1 */
-    unsigned long iterators; /* number of iterators currently running */
+    dictType *type; /** 盖子点对应特定的操作函数 */
+    void *privdata; /** 该字典依赖的数据 */
+    dictht ht[2]; /**  Hash表，键值存储在此*/
+    long rehashidx; /* rehashing 标识，默认值为-1，代表没有进行rehash操作 */
+    unsigned long iterators; /* 当前运行的迭代器数*/
 } dict;
 
 /* If safe is set to 1 this is a safe iterator, that means, you can call

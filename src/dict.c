@@ -262,12 +262,12 @@ static void _dictRehashStep(dict *d) {
 }
 
 /* Add an element to the target hash table */
-int dictAdd(dict *d, void *key, void *val)
+int dictAdd(dict *d, void *key, void *val) /*调用前会查找key存在与否，不存在则插入 */
 {
-    dictEntry *entry = dictAddRaw(d,key,NULL);
+    dictEntry *entry = dictAddRaw(d,key,NULL); /*添加键，字典中键已存在则返回*/
 
-    if (!entry) return DICT_ERR;
-    dictSetVal(d, entry, val);
+    if (!entry) return DICT_ERR; /*键存在则返回错误*/
+    dictSetVal(d, entry, val); /*设置值*/
     return DICT_OK;
 }
 
