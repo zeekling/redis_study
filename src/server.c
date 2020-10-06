@@ -1961,7 +1961,7 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
         }
     }
 
-    /* We need to do a few operations on clients asynchronously. */
+    /* 清除无用客户端连接 */
     clientsCron();
 
     /* Handle background operations on Redis databases. */

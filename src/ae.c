@@ -314,7 +314,7 @@ static int processTimeEvents(aeEventLoop *eventLoop) {
         long now_sec, now_ms;
         long long id;
 
-        /* Remove events scheduled for deletion. */
+        /* 删除已经指定要删除的事件 */
         if (te->id == AE_DELETED_EVENT_ID) {
             aeTimeEvent *next = te->next;
             /* If a reference exists for this timer event,
@@ -354,9 +354,11 @@ static int processTimeEvents(aeEventLoop *eventLoop) {
 
             id = te->id;
             te->refcount++;
+              // 处理时间事件
             retval = te->timeProc(eventLoop, id, te->clientData);
             te->refcount--;
             processed++;
+             // 重新设置时间事件到期时间
             if (retval != AE_NOMORE) {
                 aeAddMillisecondsToNow(retval,&te->when_sec,&te->when_ms);
             } else {
