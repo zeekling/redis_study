@@ -99,7 +99,7 @@ void setCommand(client *c) {
     robj *expire = NULL;
     int unit = UNIT_SECONDS;
     int flags = OBJ_SET_NO_FLAGS;
-
+    // 解析set命令的val值
     for (j = 3; j < c->argc; j++) {
         char *a = c->argv[j]->ptr;
         robj *next = (j == c->argc-1) ? NULL : c->argv[j+1];
@@ -141,7 +141,7 @@ void setCommand(client *c) {
             return;
         }
     }
-
+    // 编码val值，用于节省空间
     c->argv[2] = tryObjectEncoding(c->argv[2]);
     setGenericCommand(c,flags,c->argv[1],c->argv[2],expire,unit,NULL,NULL);
 }

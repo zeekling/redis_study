@@ -288,6 +288,11 @@ int dictAdd(dict *d, void *key, void *val) /*调用前会查找key存在与否�
  * with the existing entry if existing is not NULL.
  *
  * If key was added, the hash entry is returned to be manipulated by the caller.
+ *
+ * 中文翻译：
+ * 低级添加或查找：
+ * 此函数用于添加条目，但不会设置值，而是将dictEntry结构返回给用户，用户将确保按照用户的意愿填充值字段。
+ *
  */
 dictEntry *dictAddRaw(dict *d, void *key, dictEntry **existing)
 {
@@ -302,10 +307,11 @@ dictEntry *dictAddRaw(dict *d, void *key, dictEntry **existing)
     if ((index = _dictKeyIndex(d, key, dictHashKey(d,key), existing)) == -1)
         return NULL;
 
-    /* Allocate the memory and store the new entry.
-     * Insert the element in top, with the assumption that in a database
-     * system it is more likely that recently added entries are accessed
-     * more frequently. */
+    /*
+     * 分配内存并存储新条目。
+     * 在顶部插入元素，假设在数据库中，最近添加的条目更有可能被更频繁地访问。
+     *
+     * */
     ht = dictIsRehashing(d) ? &d->ht[1] : &d->ht[0];
     entry = zmalloc(sizeof(*entry));
     entry->next = ht->table[index];

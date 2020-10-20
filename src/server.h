@@ -447,12 +447,12 @@ typedef long long ustime_t; /* microsecond time type. */
 
 /* A redis object, that is a type able to hold a string / list / set */
 
-/* The actual Redis Object */
-#define OBJ_STRING 0    /* String object. */
-#define OBJ_LIST 1      /* List object. */
-#define OBJ_SET 2       /* Set object. */
-#define OBJ_ZSET 3      /* Sorted set object. */
-#define OBJ_HASH 4      /* Hash object. */
+/* The actual Redis Object ，占用四字节*/
+#define OBJ_STRING 0    /* String 对象类型 */
+#define OBJ_LIST 1      /* List 对象类型. */
+#define OBJ_SET 2       /* Set 对象类型. */
+#define OBJ_ZSET 3      /* Sorted set 对象类型. */
+#define OBJ_HASH 4      /* Hash 独享类型. */
 
 /* The "module" object type is a special one that signals that the object
  * is one directly managed by a Redis module. In this case the value points
@@ -465,8 +465,8 @@ typedef long long ustime_t; /* microsecond time type. */
  * by a 64 bit module type ID, which has a 54 bits module-specific signature
  * in order to dispatch the loading to the right module, plus a 10 bits
  * encoding version. */
-#define OBJ_MODULE 5    /* Module object. */
-#define OBJ_STREAM 6    /* Stream object. */
+#define OBJ_MODULE 5    /* Module 对象类型. */
+#define OBJ_STREAM 6    /* Stream 对象类型. */
 
 /* Extract encver / signature from a module type ID. */
 #define REDISMODULE_TYPE_ENCVER_BITS 10
@@ -604,13 +604,16 @@ typedef struct RedisModuleDigest {
 #define OBJ_STATIC_REFCOUNT (INT_MAX-1) /* Object allocated in the stack. */
 #define OBJ_FIRST_SPECIAL_REFCOUNT OBJ_STATIC_REFCOUNT
 typedef struct redisObject {
-    unsigned type:4;
-    unsigned encoding:4;
+    unsigned type:4; /** type表示Redis对象的类型，占用4位，包含 OBJ_STRING等。 */
+    unsigned encoding:4; /** encoding表示对象内部存储的编码，在一定条件下，对象的编码可以在多个编码之间转化，长度占用4位,包含OBJ_ENCODING_RAW等 */
+    /** lru占用24位，当用于LRU时表示最后一次访问时间，
+     * 当用于LFU时，高16位记录分钟级别的访问时间，低8位记录访问频率0到255，
+     * 默认配置8位可表示最大100万访问频次，详细参见object命令。 */
     unsigned lru:LRU_BITS; /* LRU time (relative to global lru_clock) or
                             * LFU data (least significant 8 bits frequency
                             * and most significant 16 bits access time). */
-    int refcount;
-    void *ptr;
+    int refcount; /** refcount表示对象被引用的计数，类型为整型，实际应用中参考意义不大 */
+    void *ptr;  /** ptr是指向具体数据的指针，比如一个字符串对象，该指针指向存放数据sds的地址 */
 } robj;
 
 /* The a string name for an object's type as listed above

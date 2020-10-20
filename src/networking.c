@@ -1646,6 +1646,7 @@ int processMultibulkBuffer(client *c) {
 
         /* Setup argv array on client structure */
         if (c->argv) zfree(c->argv);
+         // 申请argv对象所用的空间
         c->argv = zmalloc(sizeof(robj*)*c->multibulklen);
     }
 
@@ -1853,6 +1854,7 @@ void processInputBuffer(client *c) {
                 break;
             }
         } else if (c->reqtype == PROTO_REQ_MULTIBULK) {
+        	// 解析客户端信息
             if (processMultibulkBuffer(c) != C_OK) break;
         } else {
             serverPanic("Unknown request type");
