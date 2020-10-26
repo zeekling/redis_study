@@ -465,7 +465,11 @@ robj *tryObjectEncoding(robj *o) {
         /* This object is encodable as a long. Try to use a shared object.
          * Note that we avoid using shared integers when maxmemory is used
          * because every object needs to have a private LRU field for the LRU
-         * algorithm to work well. */
+         * algorithm to work well. 
+         * 
+         * 如果长度小于20，则考虑将value转换long类型
+         * 
+         * */
         if ((server.maxmemory == 0 ||
             !(server.maxmemory_policy & MAXMEMORY_FLAG_NO_SHARED_INTEGERS)) &&
             value >= 0 &&
@@ -490,7 +494,9 @@ robj *tryObjectEncoding(robj *o) {
     /* If the string is small and is still RAW encoded,
      * try the EMBSTR encoding which is more efficient.
      * In this representation the object and the SDS string are allocated
-     * in the same chunk of memory to save space and cache misses. */
+     * in the same chunk of memory to save space and cache misses. 
+     * 对于长度小于44的进行编码
+     * */
     if (len <= OBJ_ENCODING_EMBSTR_SIZE_LIMIT) {
         robj *emb;
 
@@ -508,7 +514,9 @@ robj *tryObjectEncoding(robj *o) {
      *
      * We do that only for relatively large strings as this branch
      * is only entered if the length of the string is greater than
-     * OBJ_ENCODING_EMBSTR_SIZE_LIMIT. */
+     * OBJ_ENCODING_EMBSTR_SIZE_LIMIT. 
+     * 不能编码的字符串释放空闲字节
+     * */
     trimStringObjectIfNeeded(o);
 
     /* Return the original object. */

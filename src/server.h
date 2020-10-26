@@ -645,15 +645,15 @@ typedef struct clientReplyBlock {
  * by integers from 0 (the default database) up to the max configured
  * database. The database number is the 'id' field in the structure. */
 typedef struct redisDb {
-    dict *dict;                 /* The keyspace for this DB */
-    dict *expires;              /* Timeout of keys with a timeout set */
-    dict *blocking_keys;        /* Keys with clients waiting for data (BLPOP)*/
-    dict *ready_keys;           /* Blocked keys that received a PUSH */
-    dict *watched_keys;         /* WATCHED keys for MULTI/EXEC CAS */
-    int id;                     /* Database ID */
-    long long avg_ttl;          /* Average TTL, just for stats */
-    unsigned long expires_cursor; /* Cursor of the active expire cycle. */
-    list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
+    dict *dict;                 /* 键空间字典，存放所有键值对。 */
+    dict *expires;              /*  key的超时时间字典,存放键的过期时间，注意dict和expires中的键都指向同一个键的sds。 */
+    dict *blocking_keys;        /* 阻塞的key:处于阻塞状态的键和对应的client。*/
+    dict *ready_keys;           /* 准备好的key:解除阻塞状态的键和对应的client，与blocking_keys属性相对，为了实现需要阻塞的命令设计 */
+    dict *watched_keys;         /* 执行事务的key:watch的键和对应的client，主要用于事务。 */
+    int id;                     /* 数据库ID */
+    long long avg_ttl;          /* 数据库内所有键的平均生存时间，用于统计 */
+    unsigned long expires_cursor; /* 活动过期周期的光标。 */
+    list *defrag_later;         /*  逐渐尝试逐个碎片整理的key列表 */
 } redisDb;
 
 /* Client MULTI/EXEC state */
@@ -1786,6 +1786,7 @@ int collateStringObjects(robj *a, robj *b);
 int equalStringObjects(robj *a, robj *b);
 unsigned long long estimateObjectIdleTime(robj *o);
 void trimStringObjectIfNeeded(robj *o);
+// 判断只有对string和raw类型进行优化
 #define sdsEncodedObject(objptr) (objptr->encoding == OBJ_ENCODING_RAW || objptr->encoding == OBJ_ENCODING_EMBSTR)
 
 /* Synchronous I/O with timeout */

@@ -96,10 +96,12 @@ void setGenericCommand(client *c, int flags, robj *key, robj *val, robj *expire,
 /* SET key value [NX] [XX] [KEEPTTL] [EX <seconds>] [PX <milliseconds>] */
 void setCommand(client *c) {
     int j;
-    robj *expire = NULL;
+    robj *expire = NULL; // 超时时间，robj类型
+     // 字符串的超时时间单位有秒和毫秒两种，程序中根据此值来确认超时的单位，此值只有两个取值，分别为UNIT_SECONDS，UNIT_MILLISECONDS
     int unit = UNIT_SECONDS;
+    // int类型，它是一个二进制串，程序中根据此值来确定key是否应该被设置到数据库。
     int flags = OBJ_SET_NO_FLAGS;
-    // 解析set命令的val值
+    // 解析set命令的NX、XX、EX、PX的值
     for (j = 3; j < c->argc; j++) {
         char *a = c->argv[j]->ptr;
         robj *next = (j == c->argc-1) ? NULL : c->argv[j+1];
