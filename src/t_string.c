@@ -196,7 +196,9 @@ void getsetCommand(client *c) {
     notifyKeyspaceEvent(NOTIFY_STRING,"set",c->argv[1],c->db->id);
     server.dirty++;
 }
-
+/**
+ * setrange命令实现详情
+ * */
 void setrangeCommand(client *c) {
     robj *o;
     long offset;
@@ -247,6 +249,11 @@ void setrangeCommand(client *c) {
     }
 
     if (sdslen(value) > 0) {
+        /**
+         * 考虑到当value的长度加offset会大于原值长度时，需要额外分配空间用于存储新值并返回。
+         * 此时调用了sdsgrowzero函数。sdsgrowzero函数会进行识别，只有当offset+sdslen(value)
+         * 大于原值长度时才会扩充空间，否则直接返回原字符串。
+         * */
         o->ptr = sdsgrowzero(o->ptr,offset+sdslen(value));
         memcpy((char*)o->ptr+offset,value,sdslen(value));
         signalModifiedKey(c,c->db,c->argv[1]);
