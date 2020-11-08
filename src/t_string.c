@@ -31,7 +31,7 @@
 #include <math.h> /* isnan(), isinf() */
 
 /*-----------------------------------------------------------------------------
- * String Commands
+ * String Commands 检查字符串的长度是否大于255M
  *----------------------------------------------------------------------------*/
 
 static int checkStringLength(client *c, long long size) {
@@ -452,26 +452,28 @@ void incrbyfloatCommand(client *c) {
     rewriteClientCommandArgument(c,3,aux2);
     decrRefCount(aux2);
 }
-
+/**
+ * append命令实现函数 
+ **/
 void appendCommand(client *c) {
     size_t totlen;
     robj *o, *append;
-
+    // 查找key对应的数据
     o = lookupKeyWrite(c->db,c->argv[1]);
     if (o == NULL) {
-        /* Create the key */
+        /* 如果找不到，则添加 */
         c->argv[2] = tryObjectEncoding(c->argv[2]);
         dbAdd(c->db,c->argv[1],c->argv[2]);
         incrRefCount(c->argv[2]);
         totlen = stringObjectLen(c->argv[2]);
     } else {
-        /* Key exists, check type */
+        /* Key exists, check type，检查是否为string类型 */
         if (checkType(c,o,OBJ_STRING))
             return;
 
         /* "append" is an argument, so always an sds */
         append = c->argv[2];
-        totlen = stringObjectLen(o)+sdslen(append->ptr);
+        totlen = stringObjectLen(o)+sdslen(append->ptr); // 检查长度 
         if (checkStringLength(c,totlen) != C_OK)
             return;
 
