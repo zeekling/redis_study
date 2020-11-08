@@ -2951,7 +2951,9 @@ void *IOThreadMain(void *myid) {
     }
 }
 
-/* Initialize the data structures needed for threaded I/O. */
+/* Initialize the data structures needed for threaded I/O. 
+ * 初始化多线程IO
+ */
 void initThreadedIO(void) {
     io_threads_active = 0; /* We start with threads not active. */
 

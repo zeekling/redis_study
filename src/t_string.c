@@ -97,7 +97,8 @@ void setGenericCommand(client *c, int flags, robj *key, robj *val, robj *expire,
 void setCommand(client *c) {
     int j;
     robj *expire = NULL; // 超时时间，robj类型
-     // 字符串的超时时间单位有秒和毫秒两种，程序中根据此值来确认超时的单位，此值只有两个取值，分别为UNIT_SECONDS，UNIT_MILLISECONDS
+     // 字符串的超时时间单位有秒和毫秒两种，程序中根据此值来确认超时的单位，
+     //此值只有两个取值，分别为UNIT_SECONDS，UNIT_MILLISECONDS
     int unit = UNIT_SECONDS;
     // int类型，它是一个二进制串，程序中根据此值来确定key是否应该被设置到数据库。
     int flags = OBJ_SET_NO_FLAGS;
@@ -147,17 +148,23 @@ void setCommand(client *c) {
     c->argv[2] = tryObjectEncoding(c->argv[2]);
     setGenericCommand(c,flags,c->argv[1],c->argv[2],expire,unit,NULL,NULL);
 }
-
+/**
+ * 当key值不存在的时候在执行 
+ **/
 void setnxCommand(client *c) {
     c->argv[2] = tryObjectEncoding(c->argv[2]);
     setGenericCommand(c,OBJ_SET_NX,c->argv[1],c->argv[2],NULL,0,shared.cone,shared.czero);
 }
-
+/**
+ * 将key-value设置到数据库，并且指定key的超时秒数。
+ **/
 void setexCommand(client *c) {
     c->argv[3] = tryObjectEncoding(c->argv[3]);
     setGenericCommand(c,OBJ_SET_NO_FLAGS,c->argv[1],c->argv[3],c->argv[2],UNIT_SECONDS,NULL,NULL);
 }
-
+/**
+ * 将key-value设置到数据库，并且指定key的超时毫秒数。
+ **/
 void psetexCommand(client *c) {
     c->argv[3] = tryObjectEncoding(c->argv[3]);
     setGenericCommand(c,OBJ_SET_NO_FLAGS,c->argv[1],c->argv[3],c->argv[2],UNIT_MILLISECONDS,NULL,NULL);
@@ -317,8 +324,7 @@ void msetGenericCommand(client *c, int nx) {
         return;
     }
 
-    /* Handle the NX flag. The MSETNX semantic is to return zero and don't
-     * set anything if at least one key alerady exists. */
+    /* 当nx参数为1时，需要遍历每个key在数据库中是否存在，当有任意一个key存在时，表示参数不合法，会报错退出 */
     if (nx) {
         for (j = 1; j < c->argc; j += 2) {
             if (lookupKeyWrite(c->db,c->argv[j]) != NULL) {
@@ -327,7 +333,12 @@ void msetGenericCommand(client *c, int nx) {
             }
         }
     }
-
+   /**
+    * 当把多个key-value设置入数据库时，同样为了节省内存考虑，需
+    * 要调用tryObjectEncoding函数将每个value编码。编码完成之后，
+    * 依次将key-value添加到数据库中。注意mset和msetex不能设置超时时间，
+    * 所以程序中不需要考虑expire
+    * */
     for (j = 1; j < c->argc; j += 2) {
         c->argv[j+1] = tryObjectEncoding(c->argv[j+1]);
         setKey(c,c->db,c->argv[j],c->argv[j+1]);
