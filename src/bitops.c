@@ -545,14 +545,14 @@ void setbitCommand(client *c) {
     if ((o = lookupStringForBitCommand(c,bitoffset)) == NULL) return;
 
     /* Get current values */
-    byte = bitoffset >> 3;
-    byteval = ((uint8_t*)o->ptr)[byte];
-    bit = 7 - (bitoffset & 0x7);
-    bitval = byteval & (1 << bit);
+    byte = bitoffset >> 3; //一个字节是8位，现在需要除以8，以定位到第byte个字节上
+    byteval = ((uint8_t*)o->ptr)[byte]; //取出第byte个字节
+    bit = 7 - (bitoffset & 0x7); //offset对8取模
+    bitval = byteval & (1 << bit); //1<<bit位表示将1从低位向左移bit位，获取到第bit位
 
     /* Update byte with new bit value and return original value */
-    byteval &= ~(1 << bit);
-    byteval |= ((on & 0x1) << bit);
+    byteval &= ~(1 << bit); //1左移bit位，取反与原值相与，即将原值的低bit位赋值为0
+    byteval |= ((on & 0x1) << bit); //on&0x1的值为要修改后的值，左移bit位，与原值相或
     ((uint8_t*)o->ptr)[byte] = byteval;
     signalModifiedKey(c,c->db,c->argv[1]);
     notifyKeyspaceEvent(NOTIFY_STRING,"setbit",c->argv[1],c->db->id);
