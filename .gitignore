@@ -37,3 +37,5 @@ Makefile.dep
 .project
 redis.layout
 .redis
+core
+*.core
