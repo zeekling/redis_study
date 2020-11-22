@@ -5,6 +5,7 @@
 #
 
 
+chmod 744 -R deps
 cd ./deps/jemalloc  &&  bash autogen.sh
 
 cd ../ && make hiredis jemalloc linenoise lua
