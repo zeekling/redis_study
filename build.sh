@@ -5,7 +5,7 @@
 #
 
 
-cd ./deps/jemalloc && ./configure &&  bash autogen.sh
+cd ./deps/jemalloc  &&  bash autogen.sh
 
 cd ../ && make hiredis jemalloc linenoise lua
 
