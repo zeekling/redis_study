@@ -1,0 +1,21 @@
+# drone 本地构建
+kind: pipeline
+type: docker
+name: redis
+
+platform:
+  arch: arm64
+
+# drone构建步骤
+steps:
+  # 1.maven打包
+  - name: c make
+    pull: if-not-exists
+    image: gcc
+    commands:
+      - make
+
+# drone执行触发器
+trigger:
+  branch:
+    - master
