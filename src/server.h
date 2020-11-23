@@ -153,7 +153,7 @@ typedef long long ustime_t; /* microsecond time type. */
 /* Hash table parameters */
 #define HASHTABLE_MIN_FILL        10      /* Minimal hash table fill 10% */
 
-/* Command flags. Please check the command table defined in the redis.c file
+/* Command flags. Please check the command table defined in the server.c file
  * for more information about the meaning of every flag. */
 #define CMD_WRITE (1ULL<<0)            /* "write" flag */
 #define CMD_READONLY (1ULL<<1)         /* "read-only" flag */
@@ -721,7 +721,9 @@ typedef struct readyList {
 
 /* This structure represents a Redis user. This is useful for ACLs, the
  * user is associated to the connection after the connection is authenticated.
- * If there is no associated user, the connection uses the default user. */
+ * If there is no associated user, the connection uses the default user. 
+ * 表示Redis ACL所有的用户不能超过1024个
+ *  */
 #define USER_COMMAND_BITS_COUNT 1024    /* The total number of command bits
                                            in the user structure. The last valid
                                            command ID we can set in the user
@@ -736,6 +738,7 @@ typedef struct readyList {
                                            no AUTH is needed, and every
                                            connection is immediately
                                            authenticated. */
+/* 用户信息 */
 typedef struct {
     sds name;       /* The username as an SDS string. */
     uint64_t flags; /* See USER_FLAG_* */
@@ -746,7 +749,9 @@ typedef struct {
      *
      * If the bit for a given command is NOT set and the command has
      * subcommands, Redis will also check allowed_subcommands in order to
-     * understand if the command can be executed. */
+     * understand if the command can be executed.
+     * 
+     * */
     uint64_t allowed_commands[USER_COMMAND_BITS_COUNT/64];
 
     /* This array points, for each command ID (corresponding to the command
@@ -1428,7 +1433,7 @@ struct redisServer {
     long long latency_monitor_threshold;
     dict *latency_events;
     /* ACLs */
-    char *acl_filename;     /* ACL Users file. NULL if not configured. */
+    char *acl_filename;     /* ACL Users file. NULL if not configured.ACL文件路径，需要配置已经存在的文件，否则会报错启动失败  */
     unsigned long acllog_max_len; /* Maximum length of the ACL LOG list. */
     sds requirepass;        /* Remember the cleartext password set with the
                                old "requirepass" directive for backward
