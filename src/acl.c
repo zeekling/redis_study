@@ -148,7 +148,9 @@ int time_independent_strcmp(char *a, char *b) {
 }
 
 /* Given an SDS string, returns the SHA256 hex representation as a
- * new SDS string. */
+ * new SDS string. 
+ * 对密码进行加密
+ * * */
 sds ACLHashPassword(unsigned char *cleartext, size_t len) {
     SHA256_CTX ctx;
     unsigned char hash[SHA256_BLOCK_SIZE];
@@ -232,7 +234,10 @@ void *ACLListDupSds(void *item) {
  * of users (the Users global radix tree), and returns a reference to
  * the structure representing the user.
  *
- * If the user with such name already exists NULL is returned. */
+ * If the user with such name already exists NULL is returned. 
+ * 
+ * 创建用户
+ *  */
 user *ACLCreateUser(const char *name, size_t namelen) {
     if (raxFind(Users,(unsigned char*)name,namelen) != raxNotFound) return NULL;
     user *u = zmalloc(sizeof(*u));
@@ -255,7 +260,9 @@ user *ACLCreateUser(const char *name, size_t namelen) {
 /* This function should be called when we need an unlinked "fake" user
  * we can use in order to validate ACL rules or for other similar reasons.
  * The user will not get linked to the Users radix tree. The returned
- * user should be released with ACLFreeUser() as usually. */
+ * user should be released with ACLFreeUser() as usually. 
+ * 
+ * * */
 user *ACLCreateUnlinkedUser(void) {
     char username[64];
     for (int j = 0; ; j++) {
@@ -354,9 +361,13 @@ int ACLGetCommandBitCoordinates(uint64_t id, uint64_t *word, uint64_t *bit) {
  * but just the lowlevel bitmask.
  *
  * If the bit overflows the user internal representation, zero is returned
- * in order to disallow the execution of the command in such edge case. */
+ * in order to disallow the execution of the command in such edge case.
+ * 
+ * 通过计算command对应的bit位，计算是否存在权限
+ * * */
 int ACLGetUserCommandBit(user *u, unsigned long id) {
     uint64_t word, bit;
+    // 计算命令在allowed_commands当中对应的bit位
     if (ACLGetCommandBitCoordinates(id,&word,&bit) == C_ERR) return 0;
     return (u->allowed_commands[word] & bit) != 0;
 }
@@ -927,18 +938,22 @@ char *ACLSetUserStringError(void) {
 }
 
 /* Initialize the default user, that will always exist for all the process
- * lifetime. */
+ * lifetime. 
+ * 初始化默认用户
+ * */
 void ACLInitDefaultUser(void) {
     DefaultUser = ACLCreateUser("default",7);
-    ACLSetUser(DefaultUser,"+@all",-1);
-    ACLSetUser(DefaultUser,"~*",-1);
-    ACLSetUser(DefaultUser,"on",-1);
-    ACLSetUser(DefaultUser,"nopass",-1);
+    ACLSetUser(DefaultUser,"+@all",-1); // 默认用户赋予所有命令的权限
+    ACLSetUser(DefaultUser,"~*",-1); // 可以操作任何key
+    ACLSetUser(DefaultUser,"on",-1); // 默认开启
+    ACLSetUser(DefaultUser,"nopass",-1);// 默认不需要密码
 }
 
-/* Initialization of the ACL subsystem. */
+/* Initialization of the ACL subsystem.
+ * 初始化ACL子系统
+ * */
 void ACLInit(void) {
-    Users = raxNew();
+    Users = raxNew(); // 初始化用户信息
     UsersToLoad = listCreate();
     ACLLog = listCreate();
     ACLInitDefaultUser();
@@ -1056,7 +1071,9 @@ user *ACLGetUserByName(const char *name, size_t namelen) {
  * ACL_DENIED_CMD or ACL_DENIED_KEY is returned: the first in case the
  * command cannot be executed because the user is not allowed to run such
  * command, the second if the command is denied because the user is trying
- * to access keys that are not among the specified patterns. */
+ * to access keys that are not among the specified patterns. 
+ * 检查当前用户是否拥有对当前命令的权限
+ * * */
 int ACLCheckCommandPerm(client *c, int *keyidxptr) {
     user *u = c->user;
     uint64_t id = c->cmd->id;
@@ -1069,7 +1086,9 @@ int ACLCheckCommandPerm(client *c, int *keyidxptr) {
         c->cmd->proc != authCommand)
     {
         /* If the bit is not set we have to check further, in case the
-         * command is allowed just with that specific subcommand. */
+         * command is allowed just with that specific subcommand.
+         * 
+         * */
         if (ACLGetUserCommandBit(u,id) == 0) {
             /* Check if the subcommand matches. */
             if (c->argc < 2 ||
@@ -1151,7 +1170,9 @@ int ACLCheckCommandPerm(client *c, int *keyidxptr) {
  *
  * When an error is detected and C_ERR is returned, the function populates
  * by reference (if not set to NULL) the argc_err argument with the index
- * of the argv vector that caused the error. */
+ * of the argv vector that caused the error.
+ * 加载user配置的ACL信息
+ * * *  */
 int ACLAppendUserForLoading(sds *argv, int argc, int *argc_err) {
     if (argc < 2 || strcasecmp(argv[0],"user")) {
         if (argc_err) *argc_err = 0;
@@ -1183,7 +1204,9 @@ int ACLAppendUserForLoading(sds *argv, int argc, int *argc_err) {
 
 /* This function will load the configured users appended to the server
  * configuration via ACLAppendUserForLoading(). On loading errors it will
- * log an error and return C_ERR, otherwise C_OK will be returned. */
+ * log an error and return C_ERR, otherwise C_OK will be returned.
+ * 从user配置项中读取ACl信息
+ * *  */
 int ACLLoadConfiguredUsers(void) {
     listIter li;
     listNode *ln;
@@ -1192,11 +1215,12 @@ int ACLLoadConfiguredUsers(void) {
         sds *aclrules = listNodeValue(ln);
         sds username = aclrules[0];
 
+        // 检查ACL用户名当中是否存在空格
         if (ACLStringHasSpaces(aclrules[0],sdslen(aclrules[0]))) {
             serverLog(LL_WARNING,"Spaces not allowed in ACL usernames");
             return C_ERR;
         }
-
+        // 创建ACL用户
         user *u = ACLCreateUser(username,sdslen(username));
         if (!u) {
             u = ACLGetUserByName(username,sdslen(username));
@@ -1206,6 +1230,7 @@ int ACLLoadConfiguredUsers(void) {
 
         /* Load every rule defined for this user. */
         for (int j = 1; aclrules[j]; j++) {
+            // 添加当前用户的所有属性
             if (ACLSetUser(u,aclrules[j],sdslen(aclrules[j])) != C_OK) {
                 char *errmsg = ACLSetUserStringError();
                 serverLog(LL_WARNING,"Error loading ACL rule '%s' for "
@@ -1216,7 +1241,9 @@ int ACLLoadConfiguredUsers(void) {
         }
 
         /* Having a disabled user in the configuration may be an error,
-         * warn about it without returning any error to the caller. */
+         * warn about it without returning any error to the caller.
+         * 用户没有开启的时候打印到日志里面
+         * */
         if (u->flags & USER_FLAG_DISABLED) {
             serverLog(LL_NOTICE, "The user '%s' is disabled (there is no "
                                  "'on' modifier in the user description). Make "
@@ -1249,7 +1276,10 @@ int ACLLoadConfiguredUsers(void) {
  *
  * At the end of the process, if no errors were found in the whole file then
  * NULL is returned. Otherwise an SDS string describing in a single line
- * a description of all the issues found is returned. */
+ * a description of all the issues found is returned. 
+ * 
+ * 从aclfile配置的文件里面读取ACL信息
+ * */
 sds ACLLoadFromFile(const char *filename) {
     FILE *fp;
     char buf[1024];
@@ -1466,7 +1496,9 @@ cleanup:
  * loaded, and we are ready to start, in order to load the ACLs either from
  * the pending list of users defined in redis.conf, or from the ACL file.
  * The function will just exit with an error if the user is trying to mix
- * both the loading methods. */
+ * both the loading methods.
+ * 加载redis.conf配置项aclfile对应文件里面的ACL权限信息
+ * */
 void ACLLoadUsersAtStartup(void) {
     if (server.acl_filename[0] != '\0' && listLength(UsersToLoad) != 0) {
         serverLog(LL_WARNING,
@@ -1477,7 +1509,7 @@ void ACLLoadUsersAtStartup(void) {
             "directly in your redis.conf, but not both.");
         exit(1);
     }
-
+    // 加载user配置的ACL信息
     if (ACLLoadConfiguredUsers() == C_ERR) {
         serverLog(LL_WARNING,
             "Critical error while loading ACLs. Exiting.");
