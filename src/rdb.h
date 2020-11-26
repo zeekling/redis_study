@@ -97,15 +97,15 @@
 #define rdbIsObjectType(t) ((t >= 0 && t <= 7) || (t >= 9 && t <= 15))
 
 /* Special RDB opcodes (saved/loaded with rdbSaveType/rdbLoadType). */
-#define RDB_OPCODE_MODULE_AUX 247   /* Module auxiliary data. */
-#define RDB_OPCODE_IDLE       248   /* LRU idle time. */
-#define RDB_OPCODE_FREQ       249   /* LFU frequency. */
-#define RDB_OPCODE_AUX        250   /* RDB aux field. */
-#define RDB_OPCODE_RESIZEDB   251   /* Hash table resize hint. */
-#define RDB_OPCODE_EXPIRETIME_MS 252    /* Expire time in milliseconds. */
-#define RDB_OPCODE_EXPIRETIME 253       /* Old expire time in seconds. */
-#define RDB_OPCODE_SELECTDB   254   /* DB number of the following keys. */
-#define RDB_OPCODE_EOF        255   /* End of the RDB file. */
+#define RDB_OPCODE_MODULE_AUX 247   /* Module auxiliary data. module相关辅助字段 */
+#define RDB_OPCODE_IDLE       248   /* LRU idle time. lru空闲时间 */
+#define RDB_OPCODE_FREQ       249   /* LFU frequency. lfu频率*/
+#define RDB_OPCODE_AUX        250   /* RDB aux field. 辅助字段类型 */
+#define RDB_OPCODE_RESIZEDB   251   /* Hash table resize hint. RESIZEDB，即上文中介绍的5和6两项 */
+#define RDB_OPCODE_EXPIRETIME_MS 252    /* Expire time in milliseconds.毫秒级别过期时间 */
+#define RDB_OPCODE_EXPIRETIME 253       /* Old expire time in seconds. 秒级别过期时间*/
+#define RDB_OPCODE_SELECTDB   254   /* DB number of the following keys. 数据库序号，即第4项*/
+#define RDB_OPCODE_EOF        255   /* End of the RDB file. 结束标志，即第8项*/
 
 /* Module serialized values sub opcodes */
 #define RDB_MODULE_OPCODE_EOF   0   /* End of module value. */
