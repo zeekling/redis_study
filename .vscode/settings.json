@@ -1,0 +1,22 @@
+{
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.git": false,
+        "**/.hg": true,
+        "**/.idea": true,
+        "**/.svn": true,
+        "**/*.d": true,
+        "**/*.o": true,
+        "**/CVS": true,
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true,
+        "**/redis-cli":true,
+        "**/redis-server":true,
+        "**/redis-sentinel":true,
+        "**/redis-benchmark":true,
+        "**/redis-check-aof":true,
+        "**/redis-check-rdb":true
+      }
+}
