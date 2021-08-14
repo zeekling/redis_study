@@ -39,3 +39,4 @@ redis.layout
 .redis
 core
 *.core
+./tests/tls
