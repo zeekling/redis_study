@@ -3,7 +3,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/deps/lua/src",
+                "${workspaceFolder}/deps/hiredis",
+                "${workspaceFolder}/deps/jemalloc/src",
+                "${workspaceFolder}/deps/linenoise"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
